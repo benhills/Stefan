@@ -1,0 +1,64 @@
+\begin{thebibliography}{8}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Carslaw and Jaeger(1959)]{Carslaw1959}
+Carslaw H. and Jaeger J.
+\newblock \emph{{Conduction of Heat in Solids}}.
+\newblock Oxford University Press, London, second edi edition, 1959.
+\newblock ISBN 0198533683.
+
+\bibitem[Chen et~al.(1997)Chen, Merriman, Osher, and Smereka]{Chen1997}
+Chen S., Merriman B., Osher S., and Smereka P.
+\newblock {A Simple Level Set Method for Solving Stefan Problems *}.
+\newblock 29:\penalty0 8--29, 1997.
+
+\bibitem[Crank(1975)]{Crank1975}
+Crank J.
+\newblock {the Mathematics of Diffusion}.
+\newblock page 414, 1975.
+\newblock ISSN 03064549.
+\newblock \doi{10.1016/0306-4549(77)90072-X}.
+
+\bibitem[Furzeland(1980)]{Furzeland1980}
+Furzeland R.
+\newblock {A comparative study of numerical methods for moving boundary
+  problems}.
+\newblock \emph{Journal of Applied Mathematics}, 26:\penalty0 411--429, 1980.
+
+\bibitem[Kutluay et~al.(1997)Kutluay, a.R. Bahadir, and
+  {\"{O}}zdeş]{Kutluay1997}
+Kutluay S., Bahadir, and {\"{O}}zdeş a.
+\newblock {The numerical solution of one-phase classical Stefan problem}.
+\newblock \emph{Journal of Computational and Applied Mathematics}, 81\penalty0
+  (1):\penalty0 135--144, 1997.
+\newblock ISSN 03770427.
+\newblock \doi{10.1016/S0377-0427(97)00034-4}.
+
+\bibitem[{\v{S}}arler(1995)]{Sarler1995}
+{\v{S}}arler B.
+\newblock {Stefan's work on solid-liquid phase changes}.
+\newblock \emph{Engineering Analysis with Boundary Elements}, 16\penalty0
+  (2):\penalty0 83--92, 1995.
+\newblock ISSN 09557997.
+\newblock \doi{10.1016/0955-7997(95)00047-X}.
+
+\bibitem[Sethian and Strain(1992)]{Sethian1992}
+Sethian J.~A. and Strain J.
+\newblock {Crystal growth and dendritic solidification}.
+\newblock \emph{Journal of Computational Physics}, 98\penalty0 (2):\penalty0
+  231--253, 1992.
+\newblock ISSN 10902716.
+\newblock \doi{10.1016/0021-9991(92)90140-T}.
+
+\bibitem[Voller and Cross(1981)]{Voller1981}
+Voller V. and Cross M.
+\newblock {Accurate solution of moving boundary problems using the enthalpy
+  method}.
+\newblock \emph{International Journal of Heat and Mass Transfer}, 24:\penalty0
+  545--556, 1981.
+
+\end{thebibliography}

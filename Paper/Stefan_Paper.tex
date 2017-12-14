@@ -1,0 +1,370 @@
+\documentclass[12pt]{article}
+
+\setlength{\parskip}{8pt}
+
+%\usepackage{changepage}
+\usepackage{geometry}
+\usepackage{amsmath}
+\geometry{margin=1.0in}
+\usepackage{graphicx}
+\usepackage[margin=2em,font={small}]{caption}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\bfseries}{\thesection}{1em}{}
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\usepackage[semicolon]{natbib}
+\setcitestyle{square}
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\NAT@test}{\else\NAT@nm}{\else\NAT@nmfmt{\NAT@nm}}{}{}
+\let\NAT@up\itshape
+\makeatother
+
+\title{An assessment of several numerical solutions to the Stefan problem}
+\author{Ben Hills}
+\date{October 27, 2016}
+
+\begin{document}
+
+\maketitle
+
+\raggedright
+
+\section{Classic Stefan Problem}
+
+Physical problems which include a phase change are frequent in the natural world. This is particularly true in water for which all three phases are attainable at normal atmospheric temperatures. Some examples include a frozen pond that melts in the spring time or molten lava which will solidify when exposed to the atmosphere.  Phase change problems are complicated in that they include a moving boundary. A bulk of the original work on phase change was done by Jo\v{z}ef Stefan in the late 19th century, but since then there has been a lot of development on what we call the Stefan problem.\par
+
+In order to address the phase change problem we first need to establish the conservation of energy within some domain. The constitutive relation for energy, known as Fourier's law, is
+
+\begin{equation}
+Q = -\kappa \nabla T
+\end{equation}
+
+where $Q$ is the heat flux, $\kappa$ is the thermal conductivity of the material, and T is the temperature. This equation says that energy will move down the temperature gradient by conduction. Conservation of energy by the first law of thermodynamics combined with the above constitutive relation gives us the heat equation
+
+\begin{equation}\label{eq:Heat}
+\frac{\partial T}{\partial t} = \alpha \nabla^2 T
+\end{equation}
+
+where the thermal diffusivity $\alpha = \frac{\kappa}{\rho C_p}$ describes the rate of heat diffusion for the material properties of density, $\rho$, and specific heat capacity at constant pressure, $C_p$. Note that this particular expression of energy conservation ignores advection and any energy sources. The heat equation is very well studied. Many analytical solutions for different scenarios have been developed \citep{Carslaw1959}.
+
+\begin{figure}[]
+\centering
+\includegraphics[width=.8\textwidth]{../StefanCartoon.png}
+\caption{The Stefan problem with a moving phase boundary, $s(t)$ between solid and liquid states. $Q_s$ and $Q_l$ are the conductive heat fluxes from the solid and liquid materials.}
+\label{StIllustration}
+\end{figure}
+
+Solving the heat equation as a boundary value problem will always require some set of initial and boundary conditions. Moving up to the Stefan problem requires two additional conditions at the phase boundary. We call these the Stefan conditions
+
+\begin{equation}\label{eq:StCond}
+\begin{aligned}
+\rho L_f \frac{\partial s}{\partial t} &= \kappa_1 \nabla T_1 - \kappa_2 \nabla T_2 \\~\\
+T_1(s,t) &= T_2(s,t) = T_m.
+\end{aligned}
+\end{equation}
+
+The first condition conserves energy. It says that the latent energy, $L_f$, produced or absorbed by the movement of the phase boundary, $s(t)$, needs to be balanced by an equal amount of conductive energy from material phases on either side of the boundary, 1 or 2 (Fig.~\ref{StIllustration}). Here we can define a dimensionless quantity called the Stefan number, $Ste = \frac{C_p \nabla T}{L_f}$, which is the ratio between sensible and latent heat. The second condition says that the temperature along the phase boundary is equal to the phase change temperature, here the melting temperature, $T_m$. 
+
+I want to explore the analytic and numerical solutions to one Stefan problem. For this problem I will say that we have both solid and liquid phases within a 1-dimensional domain. The liquid will always be at the melting temperature, but the solid can be below the melting temperature. This is what is called a `one-phase' Stefan problem because heat is only conducted in one material phase. The problem is expressed with the following initial and boundary conditions
+
+\begin{equation}\label{eq:BCs}
+\begin{aligned}
+s(0) = 0,& \hspace{2em} T(x,0) = T_m \\~\\  
+T(0,t) = -10,& \hspace{2em} \left. \frac{\partial T}{\partial x} \right| _{x_{rhs}} = T_m.
+\end{aligned}
+\end{equation}
+
+The phase boundary is initially at the leftmost side of the domain which will be instantaneously set to -10$^\circ C$. The rest of the domain is initially at the melting temperature and the right-hand boundary condition is zero flux. I have dropped the numerical subscripts for solid and liquid because I am assuming that all the liquid present is at the melting point.
+
+\section{Analytic Solution}
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=.5\textwidth]{../Analytic.png}
+\caption{The analytic solution of the Stefan problem for an advancing boundary of ice freezing into liquid water. The black like is the location of the phase-transition boundary.}
+\label{AnalyticPlot}
+\end{figure}
+
+The analytic solution to the Stefan problem was the work that Stefan himself originally developed. More recent publications outline his result in english \citep[i.e.][]{Carslaw1959,Sarler1995}. The solution consists of one variable for the location of the phase-transition boundary as well as the temperature distribution for both phases (here I will only consider temperature in the solid phase since I am assuming all liquid water is 0$^\circ C$).
+
+\begin{equation}
+\begin{aligned}
+s(t) &= x_0 + 2\lambda (t-t_0)^{1/2} \\~\\
+T &= A + B erf \left( \frac{x-x_0}{(4 \alpha (t-t_0))^{1/2}} \right) 
+\end{aligned}
+\end{equation}
+
+where erf is the error function and the three constants A, B, and $\lambda$ are defined by 
+
+\begin{equation}
+\begin{aligned}
+A = T(0,t),& \hspace{2em} 
+B = \frac{T_m - T(0,t)}{erf(\lambda \alpha^{-1/2})} \\~\\
+\rho L_f \lambda = &(\pi \alpha)^{-1/2} \kappa B e^{-\lambda^2 \alpha^{-1}}.
+\end{aligned}
+\end{equation}
+
+The solution (Fig.~\ref{AnalyticPlot}) shows that the rate of advance of the phase-transition boundary will exponentially decay.
+
+Analytic solutions to this problem are limited to simple geometries. However, most real world applications will require a numerical solution. There are several methods of addressing the moving boundary when solving the Stefan problem numerically. Some of these methods include front-tracking through either interpolation between nodes or a moving mesh \citep{Crank1975,Kutluay1997}, using an enthalpy variable \citep{Voller1981}, or through level sets \citep{Chen1997}. I will explore these three methods, but there are many more \citep{Crank1975}.
+
+\section{Front-Tracking - Variable Space Grid}
+
+The first numerical method that I will implement for the Stefan problem uses a variable space grid to track where the phase-transition boundary is. In order to use this method we need to redefine the problem on a moving mesh. I will follow the formulation from Kutluay et al. (\citeyear{Kutluay1997}). The time change in temperature at any mesh node is
+
+\begin{equation}\label{eq:VSG}
+\left. \frac{\partial T}{\partial t} \right |_i = 
+\left. \frac{\partial T}{\partial x} \right |_t
+\left. \frac{\partial x}{\partial t} \right |_i +
+\left. \frac{\partial T}{\partial t} \right |_x
+\end{equation}
+
+where $\left. \frac{\partial x}{\partial t} \right |_i$ is the mesh velocity at node $i$, which is defined as
+
+\begin{equation}
+\left. \frac{\partial x}{\partial t} \right |_i = 
+\frac{x_i}{s(t)} \frac{ds}{dt}.
+\end{equation}
+
+\begin{figure}[]
+\centering
+\includegraphics[width=.8\textwidth]{../VSG_Cartoon.png}
+\caption{An illustration of how the variable space grid method works. As the phase-transition boundary moves to the right the solid domain is getting larger so the mesh has to expand to compensate.}
+\label{VSG}
+\end{figure}
+
+Again $s(t)$ is the location of the phase-transition boundary and $\frac{ds}{dt}$ is the rate of progression of that boundary. This method says that the space between nodes will change as the phase-transition boundary moves (Fig.~\ref{VSG}). For an accurate solution, we need to rewrite the original problem formulation (equations \ref{eq:Heat}-\ref{eq:BCs}) according to (\ref{eq:VSG})
+
+\begin{equation}
+\begin{aligned}
+\frac{ds}{dt} &= \frac{\kappa}{\rho L_f} \nabla T \\~\\
+\frac{\partial T}{\partial t} &= \frac{x_i}{s} \frac{ds}{dt} \nabla T + \alpha \nabla^2 T \\~\\
+T(0,t) = -&10.0, \hspace{2em} T(s(t),t) = Tm.
+\end{aligned}
+\end{equation}
+
+Here we can see that an advective term has been added to the heat equation to account for movement of the nodes. Since the right side of the domain is tracking the phase-transition boundary, the boundary condition there will always be equal to the melting temperature. Now that we have the formulation I will discretize each equation using finite differences. The temperature gradient for $\frac{ds}{dt}$ (at the end of the domain) is best dicretized with a three-term backward difference \citep{Furzeland1980}
+
+\begin{equation}
+\frac{ds}{dt} = \frac{\kappa}{\rho L_f} \frac{(3T_N-4T_{N-1}+T_{N-2})}{2 dx}
+\end{equation}
+
+while the other two difference terms will be centered
+
+\begin{equation}
+T_j^{n+1} = T_j^n + \frac{dt x_j^n \dot{s}_n}{2dx s_n}
+(T_{j+1}^n-T_{j-1}^n) +
+\frac{\alpha dt}{dx^2}(T_{j+1}^n - 2T_{j}^n + T_{j-1}^n).
+\end{equation}
+
+Both of the above discretizations are explicit, meaning that they will be subject to Von Neumann stability constraints. To derive the constraints on the size of the time step we need to write the solution in the Fourier domain 
+
+\begin{equation}
+T_j = \hat{T}e^{ifjdx}
+\end{equation}
+
+so 
+
+\begin{equation}
+\begin{aligned}
+\frac{\hat{T}^{n+1}e^{ifjdx} - \hat{T}^{n}e^{ifjdx}}{dt} = 
+&\frac{x_j^n \dot{s}_n}{2dx s_n}
+(\hat{T}^{n}e^{if(j+1)dx}-\hat{T}^{n}e^{if(j-1)dx}) \\
++ &\frac{\alpha}{dx^2} (\hat{T}^{n}e^{if(j+1)dx} - 2\hat{T}^{n}e^{ifjdx} + \hat{T}^{n}e^{if(j-1)dx}).
+\end{aligned}
+\end{equation}
+
+Dividing the above equation by $e^{ifjdx}$ we get
+
+\begin{equation}
+\hat{T}^{n+1} = \hat{T}^{n} + \frac{dt x_j^n \dot{s}_n}{2dx s_n}
+(\hat{T}^{n}e^{ifdx}-\hat{T}^{n}e^{-ifdx}) + \frac{dt\alpha}{dx^2} (\hat{T}^{n}e^{ifdx} - 2\hat{T}^{n} + \hat{T}^{n}e^{-ifdx}).
+\end{equation}
+
+The next step is to divide by $\hat{T}^n$ to get the growth factor $G = \frac{\hat{T}^{n+1}}{\hat{T}^n}$ and then convert the exponentials into sine and cosine functions
+
+\begin{equation}
+G = 1 + \frac{dt x_j^n \dot{s}_n}{dx s_n}
+(isin(fdx)) - \frac{dt\alpha}{dx^2} (4sin^2(fdx/2)).
+\end{equation}
+
+For convergence the magnitude of the growth factor needs to be less than 1. Taking the absolute square of this complex number gives
+
+\begin{equation}
+|G|^2 = \left[ 1 - \frac{4dt\alpha}{dx^2}(sin^2(fdx/2)) \right]^2 - \left( \frac{dt x_j^n \dot{s}_n}{dx s_n}\right)^2 (sin^2(fdx)).
+\end{equation}
+
+\begin{figure}[!b]
+\centering
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../UnstableVSG.png}
+  \caption{An unstable ($\frac{dt\alpha}{dx^2}>0.5$) run of the variable space grid method.}
+  \label{Unstable}
+\endminipage
+\hfill
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../VSG.png}
+  \caption{A stable ($\frac{dt\alpha}{dx^2}<0.5$) run of the variable space grid method.}
+  \label{Stable}
+\endminipage
+\end{figure}
+
+The sine terms can only move between 0 and 1 so if we assume they are the largest we will be within the stability constraint. The first term is recognizable from the simple diffusion stability analysis. When $dt \leq \frac{dx^2}{2\alpha}$ this first term will be $\leq 1$. The second term is dependent on the rate of motion of the phase-transition boundary, $\dot{s}_n$, which will be largest at $x_j^n = s_n$ so those terms will cancel. This leads to a second constraint $dt \leq \frac{dx \sqrt{2}}{\dot{s}_n}$. If both constraints on $dt$ are met the solution will be stable. In Figure \ref{Unstable} we see that the unstable solution will move far away from the actual solution. On the other hand, staying within the stability constraints leads to a reasonable simulation (Fig. \ref{Stable}).
+
+\section{Fixed Domain - Enthalpy Method}
+
+Another method for approaching this problem is to change the intensive temperature variable to specific enthalpy. The reason for doing this is that enthalpy is dependent not only on temperature but also on the water content, $\omega$. What this means is that the variable is continuous through a phase change. Enthalpy, $H$, is defined as follows 
+
+\begin{equation}
+\begin{aligned}
+H(T,\omega) &= (T-T_{ref})C_p + \omega L_f \\~\\
+T(H) &=
+\begin{cases}
+H/{C_p} & H \leq C_p T_m \\
+T_m & H \geq C_p T_m.
+\end{cases}
+\end{aligned}
+\end{equation}
+
+Since enthalpy is a form of energy it must be conserved, so the heat equation holds. Instead of writing the heat equation in terms of the enthalpy diffusivity, $\alpha_H$, it is easier to write the diffusive component in terms of temperature (assuming no diffusion of latent energy)
+
+\begin{equation}
+\frac{\partial H}{\partial t} = \alpha_H \nabla^2 H = 
+\alpha C_p \nabla^2 T.
+\end{equation}
+
+\begin{figure}[]
+\centering
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../Enthalpy.png}
+  \caption{The solution for the phase-transition boundary and the `mushy zone' using the enthalpy method and compared to the analytic solution.}
+  \label{Enth}
+\endminipage
+\hfill
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../dts_Enthalpy.png}
+  \caption{An experiment to test the accuracy of the enthalpy method with different time steps (red) and grid spacings (blue).}
+  \label{Accuracy}
+\endminipage
+\end{figure}
+
+Again I will use a centered difference, but now I want to use an implicit scheme for unconditional stability
+
+\begin{equation}
+H_j^{n+1} = H_j^n + 
+\frac{\alpha C_p dt}{dx^2}(T_{j+1}^{n+1} - 2T_{j}^{n+1} + T_{j-1}^{n+1}).
+\end{equation}
+
+This `enthalpy method' is useful for phase change problems \citep{Voller1981} because the phase-transition boundary does not have to be tracked. The enthalpy variable will be continuous and the moving boundary will simply be a residual of where the enthalpy crosses some threshold. An additional aspect of using enthalpy is that what is called a `mushy zone' will develop. This is the area $0<\omega<1$ where water is present but it does not make up the entirety of the material. In most cases this is a more physical solution (Fig.~\ref{Enth}).
+
+As of yet, I have not spoken to the accuracy of these solutions. In order to do so I will step back to the formulation of the finite differences that I am using which come from the Taylor series. The Taylor series approximates a function at some point, $x+dx$, using an infinite sum of the function's derivatives at the local point $x$
+
+\begin{equation}
+u(x+dx) = u(x) + dx u'(x) + \frac{1}{2}dx^2 u''(x) + \frac{1}{6}dx^3 u'''(x) + O(dx^4).
+\end{equation}
+
+In order to turn this series into a finite difference, only some of the terms in the series are included and the remainder are summed into the function $O()$ which describes the truncation error associated with the approximation. For small $dx$, this error will only depend on the first eliminated term. The differences that we used before were the first forward difference and the second centered difference 
+
+\begin{equation}
+\Delta_+^1 u(x) = \frac{u(x+dx) - u(x)}{dx} + O(dx^2)
+\end{equation}
+
+\begin{equation}
+\Delta^2 u(x) = \frac{u(x+dx) - 2u(x) + u(x-dx)}{dx^2} + O(dx^3).
+\end{equation}
+
+The forward difference is first order accurate while the centered difference is second order accurate. For the finite difference scheme used in the enthalpy method this means that the error will be $\approx dt^2T'' + dx^3T'''$. Several simulations were run with variable $dt$ and $dx$ to test the accuracy of the solution (Fig.~\ref{Accuracy}). As you can see the solution is still very accurate with a large grid spacing, but it quickly falls away from the analytic solution at a large time step. 
+
+\section{Level Set Method}
+
+\begin{figure}[]
+\centering
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../Distance.png}
+\endminipage
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../levelset.png}
+\endminipage
+\caption{The signed distance function describes where the phase-transition boundary, $\partial \Omega$, is located. The speed $\vec{v}$ will define how the level set function changes in time.}
+\label{Sign}
+\end{figure}
+
+The final method that I will implement is the level set method \citep{Sethian1992}. This method implicitly tracks the phase-transition boundary by assigning its location according to a signed distance function (Fig.~\ref{Sign}) which will be positive in the liquid domain and negative in the solid
+
+\begin{equation}
+\phi = 
+\begin{cases}
++d & x \in \Omega_l \\
+0 & x \in \partial \Omega \\
+-d & x \in \Omega_s.
+\end{cases}
+\end{equation}
+
+We call the location where $\phi=0$ the zero level set which is the location of the moving boundary, in our case this is the phase-transition boundary. The level set function, or signed distance function, changes in time according to some prescribed speed, $\vec{v}$,
+
+\begin{equation}
+\phi_t + \vec{v}|\nabla \phi| = 0.
+\end{equation}
+
+To solve the Stefan problem with level sets, the speed is defined by the Stefan Condition in equation \ref{eq:StCond}. Unfortunately, every time the level set function is updated it no longer resembles a distance function. For this reason the level set function needs to be reinitialized (Fig.~\ref{Reinit}) by approximately solving the Eikonal equation $|\nabla \phi| = 1$ with 
+
+\begin{equation}
+\frac{\partial \phi}{\partial t} = S(\phi_0)(1-|\nabla \phi|) + \kappa_n \frac{\partial^2 \phi}{\partial x^2}.
+\end{equation}
+
+Here $S(\phi_0)$ is a sign function of the starting $\phi$ and the diffusive term is to prevent numerical asperities from running away.
+
+The solution to this 1-dimensional Stefan problem by use of level sets is shown in Figure \ref{LevSet}. However, the strength of level sets is not at all apparent in one dimension. In two dimensions \citep{Chen1997} we see that having the zero level set can help to evolve the phase-transition boundary in more physical ways. For example, an anisotropic surface tension is incorporated into the level set speed function so that a crystal grows according to the Gibbs-Thomson relation.
+
+\begin{figure}[]
+\centering
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../Reinitialize.png}
+  \caption{Reinitialization (red) of the perturbed level set function (black).}
+  \label{Reinit}
+\endminipage
+\hfill
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{../LevelSet.png}
+  \caption{The location of the phase-transition boundary according to the level set method.}
+  \label{LevSet}
+\endminipage
+\end{figure}
+
+
+\section{Discussion}
+
+In order to compare the three numerical methods that I used, I have summarized a set of time trials to compare the computational expense of each algorithm (Table \ref{Tabl}). Note that these algorithms could be written to perform much better, but it is useful to compare them now to point out that they perform very differently. The enthalpy method is by far the least expensive because there is only one variable and there is no tracking of the mesh. The level set method will require some amount of time to reinitialize the level set function at each time step. Lastly, the variable space grid method takes the longest because the operator matrix has to be rewritten at each time step to account for the change in speed of the mesh associated with the movement of the phase-transition boundary. 
+
+\begin{center}
+\captionof{table}{Time to completion (seconds) for the three numerical methods.}
+\vspace{1em}
+\begin{tabular}{c c c c}
+Number of Nodes &	Variable Space	& Enthalpy & Level Sets \\
+\hline
+21	&10.41	&1.35	&5.15\\
+51	&26.98		&1.50	&5.84\\
+101	&66.72		&1.72	&6.80\\
+201	&181.93		&2.25	&8.82\\
+\label{Tabl}
+\end{tabular}
+\end{center}
+
+Each of the numerical methods performed reasonably well for a 1-dimensional problem, with strengths and weaknesses in different scenarios. The two front-tracking methods are useful in that they solve for the location of the phase-transition boundary either explicitly (variable space grid) or implicitly through a signed distance function (level set method). However, these two methods are computationally expensive and will be dramatically more expensive in two and three dimensions. Furthermore, the variable space grid will not easily simulate changes in topology while the other two methods will. Unless an exact location for the phase-transition boundary is desired, the enthalpy method is likely the most appropriate numerical method to solve the Stefan problem.
+
+\vspace{5em}
+%\pagebreak
+
+\bibliographystyle{myabbrvnat}
+\bibliography{library.bib}
+
+\end{document}

@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: NumericalSolutions_Stefan.aux
+The style file: myabbrvnat.bst
+Database file #1: library.bib.bib
+Warning--empty journal in Chen1997
+Warning--empty journal in Crank1975
+You've used 8 entries,
+            2773 wiz_defined-function locations,
+            663 strings with 5893 characters,
+and the built_in function-call counts, 3590 in all, are:
+= -- 343
+> -- 162
+< -- 7
++ -- 56
+- -- 48
+* -- 278
+:= -- 560
+add.period$ -- 33
+call.type$ -- 8
+change.case$ -- 40
+chr.to.int$ -- 8
+cite$ -- 18
+duplicate$ -- 169
+empty$ -- 303
+format.name$ -- 62
+if$ -- 752
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 9
+newline$ -- 57
+num.names$ -- 32
+pop$ -- 68
+preamble$ -- 1
+purify$ -- 32
+quote$ -- 0
+skip$ -- 126
+stack$ -- 0
+substring$ -- 153
+swap$ -- 13
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 83
+warning$ -- 2
+while$ -- 36
+width$ -- 0
+write$ -- 128
+(There were 2 warnings)
