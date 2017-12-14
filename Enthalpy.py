@@ -5,8 +5,7 @@ Created on Fri Oct 21 10:18:02 2016
 @author: ben
 """
 
-""" This is Neumann's solution to the classic stefan problem.
-This solution is what is called the "enthalpy method"
+"""This solution is what is called the "enthalpy method"
 see Voller and Cross 1981"""
 
 import numpy as np
@@ -42,101 +41,94 @@ Tr = -16.33                         #Reference Tempearature, set so that we can 
 
 ### Enthalpy Solution ###
 
+# Test over several time step sizes
 ax3 = plt.subplot(111)
 for dt in [.001,.01,.05,.1,.2,.5]:
     N = 201
     l = 2.
-    
+
     dt = dt/365.#1000/spy
     t = 0.
     dx=l/N
     xs = np.arange(0,l,dx)
-    r = ks*dt/(dx**2) 
-    
+    r = ks*dt/(dx**2)
+
     H = ((Tm-Tr)*cs+Lf)*np.ones(N)
     H[np.where(xs<=s0)] = (T_-Tr)*cs
     T = H/cs + Tr
-    T[T>Tm]=Tm 
-    
+    T[T>Tm]=Tm
+
     A = sparse.lil_matrix((N, N))
     A.setdiag((1+2*r)*np.ones(N))              # The diagonal
     A.setdiag(-r*np.ones(N-1),k=1)       # The fist upward off-diagonal.
-    A.setdiag(-r*np.ones(N-1),k=-1) 
+    A.setdiag(-r*np.ones(N-1),k=-1)
     #Boundary Conditions
     A[0,:] = np.zeros(N) # zero out the first row
     A[0,0] = 1.0       # set diagonal in that row to 1.0
     #A[-1,:] = np.zeros(N)
-    A[-1,-1] = -2.*r 
-    A[-1,-2] = 2.*r 
+    A[-1,-1] = -2.*r
+    A[-1,-2] = 2.*r
     # For performance, other sparse matrix formats are preferred.
     # Convert to "Compressed Row Format" CR
     A = A.tocsr()
-    
+
     ts = np.array([t])
     PTB = np.array([np.min(xs[H>(0.0-Tr)*cs])])
     Mushy = [np.min(xs[H>(((Tm-Tr)*cs+Lf)+Tr*cs)*.95])]
-    
-    while t < .1:   
+
+    while t < .1:
         dT = spsolve(A,T)-T
         H += dT*cs
         T = H/cs + Tr
         T[T>Tm]=Tm
-        t += dt    
+        t += dt
         ts = np.append(ts,[t])
         PTB = np.append(PTB,[np.min(xs[H>(0.0-Tr)*cs])])
         Mushy = np.append(Mushy,[np.min(xs[H>(((Tm-Tr)*cs+Lf)+Tr*cs)*.95])])
-    
-    #plt.subplot(131)
-    #plt.plot(xs,H)
-    #ax2 = plt.subplot(121)
-    #plt.plot(xs,T,'b')
-    #plt.ylim(-11.,1.)
-    #plt.ylabel('Temperature ($^\circ C$)')
-    #plt.xlabel('meters')
-    print dt
+
     p1, = plt.plot(ts,PTB,'r',lw=2)
     #plt.fill_between(ts,PTB,Mushy,color='r',alpha=0.2)
-    #p2 = plt.Rectangle((-1, -1), 1, 1, fc="r",alpha=0.2)
 
+# Test over several spatial step sizes
 for N in [21,51,101,201]:
     #N = 201
     l = 2.
-    
+
     dt = .01/365.#1000/spy
     t = 0.
     dx=l/N
     xs = np.arange(0,l,dx)
-    r = ks*dt/(dx**2) 
-    
+    r = ks*dt/(dx**2)
+
     H = ((Tm-Tr)*cs+Lf)*np.ones(N)
     H[np.where(xs<=s0)] = (T_-Tr)*cs
     T = H/cs + Tr
-    T[T>Tm]=Tm 
-    
+    T[T>Tm]=Tm
+
     A = sparse.lil_matrix((N, N))
     A.setdiag((1+2*r)*np.ones(N))              # The diagonal
     A.setdiag(-r*np.ones(N-1),k=1)       # The fist upward off-diagonal.
-    A.setdiag(-r*np.ones(N-1),k=-1) 
+    A.setdiag(-r*np.ones(N-1),k=-1)
     #Boundary Conditions
     A[0,:] = np.zeros(N) # zero out the first row
     A[0,0] = 1.0       # set diagonal in that row to 1.0
     #A[-1,:] = np.zeros(N)
-    A[-1,-1] = -2.*r 
-    A[-1,-2] = 2.*r 
+    A[-1,-1] = -2.*r
+    A[-1,-2] = 2.*r
     # For performance, other sparse matrix formats are preferred.
     # Convert to "Compressed Row Format" CR
     A = A.tocsr()
-    
+
     ts = np.array([t])
     PTB = np.array(xs[np.min(np.where(H>(0.0-Tr)*cs))])
     #Mushy = [np.min(xs[H>(((Tm-Tr)*cs+Lf)+Tr*cs)*.95])]
     start_time = time.time()
-    while t < .1:   
+    while t < .1:
         dT = spsolve(A,T)-T
         H += dT*cs
         T = H/cs + Tr
         T[T>Tm]=Tm
-        t += dt    
+        t += dt
         ts = np.append(ts,[t])
         PTB = np.append(PTB,xs[np.min(np.where(H>(0.0-Tr)*cs))])
         #Mushy = np.append(Mushy,[np.min(xs[H>(((Tm-Tr)*cs+Lf)+Tr*cs)*.95])])

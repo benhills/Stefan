@@ -5,8 +5,7 @@ Created on Thu Oct 20 16:00:45 2016
 @author: ben
 """
 
-""" This is Neumann's solution to the classic stefan problem.
-This solution is what is called the "variable space grid.
+""" This solution is what is called the "variable space grid.
 I have followed the implementation in Kutluay et al., (1997)"""
 
 import numpy as np
@@ -45,37 +44,37 @@ ax3 = plt.subplot(111)
 for N in [21,51,101,201]:
     #N = 20
     l = 2.
-    
+
     dt = .05/365.#1000/spy
     t = 0.
     dx=s0/(N-1)
     xs = np.linspace(0,s0,N)
-    r = ks*dt/(dx**2) 
-    
+    r = ks*dt/(dx**2)
+
     T = np.ones(N)*T_
     T[-1] = Tm
-    
+
     s = s0
-    
+
     ts = np.array([t])
     PTB = np.array([s0])
-    
+
     start_time = time.time()
-    while t < .1:    
+    while t < .1:
         s_dot = Ks/(Lf*rho*2*dx)*(3*T[-1]-4*T[-2]+T[-3])
         s += s_dot*dt
-    
+
         dx=s/(N-1)
-        xs = np.linspace(0,s,N) 
+        xs = np.linspace(0,s,N)
         Nfix = len(xs[xs<s0])
-    
+
         mu = dt*s_dot/(2*dx*s)*np.linspace(0,s,N)
-        nu = ks*dt/(dx**2)  
-        
+        nu = ks*dt/(dx**2)
+
         A = sparse.lil_matrix((N, N))
         A.setdiag((1+2*nu)*np.ones(N))              # The diagonal
         A.setdiag((-mu[:-1]-nu),k=1)       # The fist upward off-diagonal.
-        A.setdiag((mu[1:]-nu),k=-1) 
+        A.setdiag((mu[1:]-nu),k=-1)
         #Boundary Conditions
         for i in range(Nfix):
             A[i,:] = np.zeros(N) # zero out the row
@@ -86,57 +85,12 @@ for N in [21,51,101,201]:
         # Convert to "Compressed Row Format" CR
         A = A.tocsr()
         T = spsolve(A,T)
-        
+
         t += dt
-        #print t
-        
+
         ts = np.append(ts,t)
         PTB = np.append(PTB,s)
         plt.plot(ts,PTB-s0,'r',lw=2,label='Variable Space Grid')
 
-    print 'time = ', time.time() - start_time    
-        
-        #if dt <= (2.*dx**2)/(4.+(dx*s_dot)**2):
-        #    print 'stable'
-        #else:
-        #    print 'unstable'
-"""
-ax2 = plt.subplot(121)
-xs = np.linspace(0,s,N)
-plt.plot(xs,T,'b')
-plt.ylim(-11.,1.)
+    print 'time = ', time.time() - start_time
 
-ax3 = plt.subplot(111)
-plt.plot(ts,PTB-s0,'r',lw=2,label='Variable Space Grid')
-
-#################################################################################
-
-### Problem Solution from Sarler (1995) ###
-
-# location of the phase boundary
-def MeltLoc(lam,t):
-    return s0 + 2*lam*(t-t0)**.5
-# Constant Bs
-def Bs(lam):
-    return (Tm-T_)/(erf(lam*ks**(-.5)))
-# Temperature in the solid
-def Ts(lam,x,t):
-    return T_ + Bs(lam)*erf((x-s0)/((4*ks*(t-t0))**.5))
-# equation to solve for lambda, set this == 0
-def Transcendental(lam):
-    lhs = rho*Lf*lam
-    rhs = -Ks*Bs(lam)*np.pi**(-.5)*np.exp(-lam**2*ks**(-1))*ks**(-.5)
-    return lhs-rhs
-
-# first I need to determine the constant lambda
-lam = fsolve(Transcendental,1.)[0]
-
-ax2.plot(xs,Ts(lam,xs,ts[-1]),'k')
-plt.plot(ts,MeltLoc(lam,ts)-s0,'k',lw=2,label='Analytic')
-
-plt.ylabel('meters')
-plt.xlabel('years')
-#plt.ylim(0,0.7)
-plt.xlim(0,.1)
-plt.legend(loc=4)
-plt.savefig('UnstableVSG.png')#"""

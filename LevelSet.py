@@ -5,8 +5,7 @@ Created on Mon Oct 24 11:12:08 2016
 @author: ben
 """
 
-""" This is Neumann's solution to the classic stefan problem.
-This solution is what is called the "Level Set Method."
+"""This solution is what is called the "Level Set Method."
 I have followed the implementation in Chen et al., (1997)"""
 
 import numpy as np
@@ -50,29 +49,29 @@ for N in [21,51,101,201]:
     xs = np.linspace(0,l,N)
     dt = .01/365.
     t = t0
-    
+
     # initialize the signed distance function based of the starting PTB
     phi = xs - PTB[0]
     # initialize the temperature function to T_ on the left and Tm everywhere that is liquid
     T = np.ones(N)*T_
     T[phi>0.] = Tm
-    
+
     # Write matrices for calculating the heat flux, distance gradient and diffusive terms
     heat_flux = sparse.lil_matrix((N, N))
     heat_flux.setdiag(-(Ks/(dx))*np.ones(N))              # The diagonal
-    heat_flux.setdiag((Ks/(dx))*np.ones(N-1),k=1)       # The fist upward off-diagonal.    
+    heat_flux.setdiag((Ks/(dx))*np.ones(N-1),k=1)       # The fist upward off-diagonal.
     heat_flux = heat_flux.tocsr()
-    
-    VN = ks*dt/(dx**2) 
+
+    VN = ks*dt/(dx**2)
     center = sparse.lil_matrix((N, N))
-    center.setdiag((1+2*VN)*np.ones(N))        
-    center.setdiag(-VN*np.ones(N),k=1)       
-    center.setdiag(-VN*np.ones(N),k=-1) 
+    center.setdiag((1+2*VN)*np.ones(N))
+    center.setdiag(-VN*np.ones(N),k=1)
+    center.setdiag(-VN*np.ones(N),k=-1)
     center[0,1:] = 0.
     center[0,0] = 1.
     center[-1,:-1] = 0.
     center[-1,-1] = 1.
-    
+
     # Write another matrix for reinitialization of the signed distance function
     # timestep, k, and diffusive term, kd, here are somewhat arbitrary. I just need to get phi back into a distance function
     k = .01
@@ -82,13 +81,13 @@ for N in [21,51,101,201]:
     Re = sparse.lil_matrix((N, N))
     Re.setdiag((1+2*VN)*np.ones(N))              # The diagonal
     Re.setdiag(-VN*np.ones(N-1),k=1)       # The fist upward off-diagonal.
-    Re.setdiag(-VN*np.ones(N-1),k=-1)     
-    Re[0,1] = -2.*VN   
-    Re[-1,-2] = -2.*VN   
-    
+    Re.setdiag(-VN*np.ones(N-1),k=-1)
+    Re[0,1] = -2.*VN
+    Re[-1,-2] = -2.*VN
+
     def reinit(phi):
         Se = phi/(np.sqrt(phi**2))
-        d_phi = np.ones_like(phi)    
+        d_phi = np.ones_like(phi)
         count = 0.
         #plt.plot(xs,phi,'k',label='$\phi (x,0)$')
         while max(abs(d_phi)) > .01:
@@ -101,8 +100,8 @@ for N in [21,51,101,201]:
             #plt.plot(xs,phi,'r')
         #plt.plot(xs,phi,'r',label='reinitialized')
         #print count
-        return phi      
-    
+        return phi
+
     start_time = time.time()
     ts = np.array([t])
     PTB = np.array([0.0])
@@ -117,35 +116,19 @@ for N in [21,51,101,201]:
         T = spsolve(center,T)
         T[np.logical_and(phi>0.,T<0.)] = 0.
         t += dt
-        #print t      
-        
+        #print t
+
         ts = np.append(ts,t)
         PTB = np.append(PTB,[np.min(xs[T>=(-1e-2)])])
-    
-    print 'time = ', time.time() - start_time    
-    
-    plt.plot(ts,PTB,'r-',lw=2,label='Level Set Method')  
-        
-        
-"""
-grad_phi = np.gradient(phi,dx)
-speed = 1./(rho*Lf)*heat_flux*T*(grad_phi/(abs(grad_phi)))
-# update distance function for new time step
-phi -= dt*speed*abs(grad_phi)
-# reinitialize distance function
-phi = reinit(phi)
 
-plt.ylabel('meters from $\phi$')
-plt.xlabel('meters')
-plt.ylim(-.8,.5)
-plt.xlim(0.2,0.8)
-plt.legend(loc=2)
-plt.savefig('Reinitialize.png')
+    print 'time = ', time.time() - start_time
+
+    plt.plot(ts,PTB,'r-',lw=2,label='Level Set Method')
 
 #################################################################################
 
 ### Problem Solution from Sarler (1995) ###
-"""
+
 s0 = PTB[0]
 
 # location of the phase boundary

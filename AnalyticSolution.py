@@ -72,8 +72,4 @@ plt.xlim(0,0.1)
 
 plt.ylabel('meters')
 plt.xlabel('years')
-#plt.title('Freezing Water $T_0 = 1^\circ C$')
 plt.savefig('Analytic')
-
-#lams = np.arange(0,2,0.01)
-#plt.plot(lams,Eq14(lams))
